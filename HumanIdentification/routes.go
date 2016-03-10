@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"github.com/lentregu/Equinox/HumanIdentification/face"
+
+	"net/http"
+)
 
 // Route is a struct that contains the main parameters of an http route and the handler that handles it
 type Route struct {
@@ -18,12 +22,12 @@ var routes = Routes{
 		"index",
 		"GET",
 		"/",
-		index,
+		face.Index,
 	},
 	Route{
 		"detect",
 		"POST",
 		"/detect",
-		detect,
+		face.Detect,
 	},
 }

@@ -1,20 +1,14 @@
 package main
 
 import (
-	"Equinox/goops"
 	"net/http"
+
+	"github.com/lentregu/Equinox/goops"
 )
-
-var log goops.GoLogger
-
-func init() {
-
-	log = goops.New()
-}
 
 func main() {
 
 	router := newRouter()
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	goops.Fatal(http.ListenAndServe(":8080", router))
 }

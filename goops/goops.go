@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"time"
 )
 
@@ -28,18 +27,12 @@ const (
 	fatal = "FATAL"
 )
 
-// New creates a logger
-func New() GoLogger {
-
-	return GoLogger{log: log.New(os.Stdout, "", 0)}
-
-}
-
 // Info logs info messages
-func (l GoLogger) Info(messages ...interface{}) {
+func (l GoLogger) parse(messages ...interface{}) string {
 	fmtString := ""
 	var message interface{}
 	var i int
+
 	args := make([]interface{}, len(messages)-1)
 	for i, message = range messages {
 		if value, ok := message.(string); !ok {
@@ -52,26 +45,33 @@ func (l GoLogger) Info(messages ...interface{}) {
 		}
 	}
 
-	fmt.Printf(fmtString, args...)
+	return fmt.Sprintf(fmtString, args...)
+
+}
+
+// Info logs info messages
+func (l GoLogger) info(messages ...interface{}) {
+	l.Level = info
+	l.jsonLog(l.parse(messages...))
 
 }
 
 // Debug log debug
-func (l GoLogger) Debug(message interface{}) {
+func (l GoLogger) debug(messages ...interface{}) {
 	l.Level = debug
-	l.jsonLog(message)
+	l.jsonLog(l.parse(messages...))
 }
 
 // Error log errors
-func (l GoLogger) Error(message interface{}) {
+func (l GoLogger) err(messages ...interface{}) {
 	l.Level = err
-	l.jsonLog(message)
+	l.jsonLog(l.parse(messages...))
 }
 
-// Error log errors
-func (l GoLogger) Fatal(message interface{}) {
+// Fatal log errors
+func (l GoLogger) fatal(messages ...interface{}) {
 	l.Level = err
-	l.jsonLogFatal(message)
+	l.jsonLogFatal(l.parse(messages...))
 }
 
 func (l GoLogger) jsonLog(message interface{}) {
@@ -85,5 +85,5 @@ func (l GoLogger) jsonLogFatal(message interface{}) {
 	l.Time = time.Now().Format(time.RFC3339)
 	l.Msg = message
 	jsonMessage, _ := json.Marshal(l)
-	l.log.Fatal("%s", jsonMessage)
+	l.log.Fatalf("%s", jsonMessage)
 }

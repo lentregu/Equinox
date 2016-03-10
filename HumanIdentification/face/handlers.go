@@ -1,36 +1,22 @@
-package main
+package face
 
 import (
-	"Equinox/oxford"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/lentregu/Equinox/oxford"
 )
 
-// Logger is a handler to wrap other handlers and log basic request parameters
-func Logger(inner http.Handler, name string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-
-		inner.ServeHTTP(w, r)
-
-		log.Info(
-			"%s\t%s\t%s\t%s",
-			r.Method,
-			r.RequestURI,
-			name,
-			time.Since(start),
-		)
-	})
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
+// Index is the welcome handler
+func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func detect(w http.ResponseWriter, r *http.Request) {
+// Detect is a handler to detect faces
+func Detect(w http.ResponseWriter, r *http.Request) {
 
 	detectReq()
 	info := InfoFaceDetection{
