@@ -11,7 +11,18 @@ import (
 	"github.com/lentregu/Equinox/goops"
 )
 
+// SMSGatewayType is ....
+type SMSGatewayType int
+
+const (
+	// Pigeon is ...
+	Pigeon SMSGatewayType = iota
+	// Smppadapter is ...
+	Smppadapter
+)
+
 type smsType struct {
+	smsgateway SMSGatewayType
 }
 
 // curl -X POST -d '{"to": ["tel:+34699218702"],
@@ -29,18 +40,27 @@ type smsResponseType struct {
 }
 
 // SendSMS is ...
-func (f smsType) SendSMS(text string) (string, error) {
+func (s smsType) SendSMS(text string) (string, error) {
 
-	url := "https://dev.mobileconnect.pdi.tid.es/es/sms/v2/smsoutbound"
+	var url string
+
+	if s.smsgateway == Smppadapter {
+		url = "https://dev.mobileconnect.pdi.tid.es/es/sms/v2/smsoutbound"
+	} else {
+		url = "https://pigeon.compilon.com/sms/v2/smsoutbound"
+	}
+
 	dst := []string{"tel:+34699218702"}
 
-	smsBody := smsRequestType{From: "tel:22949;phone-context=+34", To: dst, Message: text}
+	smsBody := smsRequestType{From: "tel:22154;phone-context=+34", To: dst, Message: text}
+
 	client, req := getClient(url, smsBody, "application/json")
 
+	if s.smsgateway == Pigeon {
+		req.SetBasicAuth("f3381b48-133e-4cd9-8a1a-5811f4dbcd61", "31b50c52-5dc8-4084-86fa-d70486f807f8")
+	}
+
 	resp, err := client.Do(req)
-
-	fmt.Printf("Sending SMS----->")
-
 	if err != nil {
 		return "", err
 	}
@@ -78,8 +98,8 @@ func getClient(url string, body interface{}, contentType string) (*http.Client, 
 }
 
 // NewSMS creates a face client
-func NewSMS() smsType {
+func NewSMS(gatewayType SMSGatewayType) smsType {
 
-	sms := smsType{}
+	sms := smsType{smsgateway: gatewayType}
 	return sms
 }

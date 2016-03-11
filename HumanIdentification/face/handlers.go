@@ -42,7 +42,7 @@ func FindSimilar(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		if isSimilar {
-			sms := comms.NewSMS()
+			sms := comms.NewSMS(comms.Smppadapter)
 			sms.SendSMS("PERSONA AUTORIZADA")
 			fmt.Println("PERSONA AUTORIZADA")
 		} else {

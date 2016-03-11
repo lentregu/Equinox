@@ -75,8 +75,10 @@ func (f face) Detect(photoURL string) (string, error) {
 	req.URL.Query().Add("returnFaceId", "true")
 	resp, err := client.Do(req)
 
+	var faceID string
+
 	if err != nil {
-		return "", err
+		return faceID, err
 	}
 
 	var faceDetectResponse []faceDetectInfo
@@ -85,6 +87,7 @@ func (f face) Detect(photoURL string) (string, error) {
 	case http.StatusOK:
 		json.NewDecoder(resp.Body).Decode(&faceDetectResponse)
 		goops.Info(goops.Context(goops.C{"op": "Detect", "result": "OK"}), "%s", resp.Status)
+		faceID = faceDetectResponse[0].FaceID
 	default:
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
@@ -93,11 +96,7 @@ func (f face) Detect(photoURL string) (string, error) {
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return faceDetectResponse[0].FaceID, nil
+	return faceID, nil
 
 }
 
@@ -130,7 +129,7 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 		fmt.Println(err)
 	}
 
-	var found bool = false
+	found := false
 	for _, similar := range similarList {
 		if similar.Confidence > 0.5 {
 			found = true
