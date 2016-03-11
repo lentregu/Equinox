@@ -1,0 +1,20 @@
+
+Cristiano 100%:
+curl -H "Content-Type: application/json" -X POST -d '{"url": "http://cdn.images.express.co.uk/img/dynamic/67/590x/ronaldo-481412.jpg"}' http://localhost:8080/find
+
+Messi 100%:
+curl -H "Content-Type: application/json" -X POST -d '{"url": "http://52.37.253.204/pedrete.jpg"}' http://localhost:8080/find
+
+Fulano:
+curl -H "Content-Type: application/json" -X POST -d '{"url": "http://www.aljihatalmaghribia.com/images/newspost_images/yazami_driss-_aljihatalmaghribia.com.jpg"}' http://localhost:8080/find
+
+
+Messi:
+
+curl -H "Content-Type: application/json" -X POST -d '{"url": "http://s.ndtvimg.com/images/content/2016/feb/806/messi-ball.jpg?downsize=764:573&output-quality=80&output-format=jpg", "faceListID": "equinox"}' http://localhost:8080/find
+
+
+Pedro
+
+curl -H "Content-Type: application/json" -X POST -d '{"url": "http://52.37.253.204/20.jpg", "faceListID": "autorizados"}' http://localhost:8080/find
+
