@@ -46,8 +46,9 @@ func init() {
 	actions = map[int]string{
 		1: "createFaceList",
 		2: "listFacesList",
-		3: "addFace",
-		4: "end",
+		3: "facesInAList",
+		4: "addFace",
+		5: "end",
 	}
 }
 
@@ -71,6 +72,13 @@ func main() {
 			} else {
 				fmt.Printf("Lists: %s\n", list)
 			}
+		case option == "facesInAList":
+			list, err := getFacesInAList()
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				fmt.Printf("Lists: %s\n", list)
+			}
 		case option == "addFace":
 			photoID, err := addFace()
 			if err != nil {
@@ -89,13 +97,14 @@ func main() {
 
 func menu() string {
 	option := 0
-	for option < 1 || option > 4 {
+	for option < 1 || option > 5 {
 		clear := screen.NewClearScreenFunction(screen.DARWIN)
 		clear()
 		fmt.Println("1. Create Face List")
 		fmt.Println("2. List of Faces lists")
-		fmt.Println("3. Add Face")
-		fmt.Println("4. Exit")
+		fmt.Println("3. List Faces in a list")
+		fmt.Println("4. Add Face")
+		fmt.Println("5. Exit")
 		fmt.Printf("\nChoose an option....:")
 		if _, err := fmt.Fscanf(stdin, "%d", &option); err != nil {
 			// In case of not introducing a number

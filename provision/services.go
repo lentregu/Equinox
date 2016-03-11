@@ -38,6 +38,13 @@ func addFace() (string, error) {
 	return faceService.AddFaceURL(faceListID, imageFileName)
 }
 
+func getFacesInAList() (string, error) {
+
+	faceListID, _ := readString("FaceList ID", oneWordRegExp)
+	faceService := oxford.NewFace("567c560aa85245418459b82634bc7a98")
+	return faceService.GetFacesInAList(faceListID)
+}
+
 func getFaceList() (string, error) {
 
 	faceService := oxford.NewFace("567c560aa85245418459b82634bc7a98")

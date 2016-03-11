@@ -25,9 +25,9 @@ var routes = Routes{
 		face.Index,
 	},
 	Route{
-		"detect",
+		"findSimilar",
 		"POST",
-		"/detect",
-		face.Detect,
+		"/find",
+		face.FindSimilar,
 	},
 }
