@@ -72,7 +72,12 @@ func main() {
 				fmt.Printf("Lists: %s\n", list)
 			}
 		case option == "addFace":
-			goops.Info("AddFace......")
+			photoID, err := addFace()
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				fmt.Printf("The PhotoID is: %s\n", photoID)
+			}
 		case option == "end":
 			return
 		}

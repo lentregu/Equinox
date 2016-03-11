@@ -1,13 +1,16 @@
 package oxford
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 )
 
@@ -30,9 +33,14 @@ const (
 )
 
 // Error represents the structure of an oxford error
-type Error struct {
-	StatusCode int    `json:"statusCode"`
+type oxfordError struct {
+	StatusCode string `json:"code"`
 	Message    string `json:"message"`
+}
+
+// APIErrorResponse is ...
+type APIErrorResponse struct {
+	Err oxfordError `json:"error"`
 }
 
 var apis map[APIType]string
@@ -54,8 +62,8 @@ func GetResource(apiType APIType, version string, resource string) string {
 	return urlStr
 }
 
-func parseError(body io.Reader) Error {
-	err := Error{}
+func parseError(body io.Reader) APIErrorResponse {
+	err := APIErrorResponse{}
 	json.NewDecoder(body).Decode(&err)
 	return err
 }
@@ -81,7 +89,21 @@ func toJSON(value interface{}, option printOption) string {
 	return fmt.Sprintf("%s", jsonValue)
 }
 
-func getPUTClient(url string, key string, body interface{}) (*http.Client, *http.Request) {
+func getPOSTClient(url string, key string, body interface{}, contentType string) (*http.Client, *http.Request) {
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+
+	req, _ := http.NewRequest("POST", url, bytes.NewBufferString(toJSON(body, normal)))
+	req.Header.Add("Content-Type", contentType)
+	req.Header.Add("Ocp-Apim-Subscription-Key", key)
+
+	return client, req
+}
+
+func getPUTClient(url string, key string, body interface{}, contentType string) (*http.Client, *http.Request) {
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -89,7 +111,7 @@ func getPUTClient(url string, key string, body interface{}) (*http.Client, *http
 	client := &http.Client{Transport: tr}
 
 	req, _ := http.NewRequest("PUT", url, bytes.NewBufferString(toJSON(body, normal)))
-	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Type", contentType)
 	req.Header.Add("Ocp-Apim-Subscription-Key", key)
 
 	return client, req
@@ -106,4 +128,30 @@ func getGETClient(url string, key string) (*http.Client, *http.Request) {
 	req.Header.Add("Ocp-Apim-Subscription-Key", key)
 
 	return client, req
+}
+
+func imageToByteArray(imageFileName string) ([]byte, error) {
+	file, err := os.Open(imageFileName)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	defer file.Close()
+
+	fileInfo, _ := file.Stat()
+	size := fileInfo.Size()
+	bytes := make([]byte, size)
+
+	// read file into bytes
+	buffer := bufio.NewReader(file)
+	_, err = buffer.Read(bytes)
+
+	return bytes, err
+}
+
+func byteArrayToBase64(binaryByteArray []byte) string {
+	imgBase64Str := base64.StdEncoding.EncodeToString(binaryByteArray)
+	return imgBase64Str
 }
