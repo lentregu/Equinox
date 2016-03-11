@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/lentregu/Equinox/HumanIdentification/comms"
 	"github.com/lentregu/Equinox/oxford"
 )
 
@@ -41,6 +42,8 @@ func FindSimilar(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		if isSimilar {
+			sms := comms.NewSMS()
+			sms.SendSMS("PERSONA AUTORIZADA")
 			fmt.Println("PERSONA AUTORIZADA")
 		} else {
 			fmt.Println("PERSONA NO AUTORIZADA")

@@ -1,10 +1,10 @@
-package oxford
+package comms
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"encoding/json"
 
@@ -14,65 +14,70 @@ import (
 type smsType struct {
 }
 
-curl -X POST -d '{"to": ["tel:+34699218702"], 
-"message": "Tu PIN es 8765", "from": "tel:22949;phone-context=+34"}' 
---header "Content-Type:application/json" http://81.45.59.59:8000/sms/v2/smsoutbound
+// curl -X POST -d '{"to": ["tel:+34699218702"],
+// "message": "Tu PIN es 8765", "from": "tel:22949;phone-context=+34"}'
+// --header "Content-Type:application/json" http://81.45.59.59:8000/sms/v2/smsoutbound
 
 type smsRequestType struct {
-	from                     string `json:"from"`
-	To                     []string `json:"to"`
-	Message                 string `json:"message"`
+	From    string   `json:"from"`
+	To      []string `json:"to"`
+	Message string   `json:"message"`
 }
 
+type smsResponseType struct {
+	ID string `json:"id"`
+}
 
+// SendSMS is ...
+func (f smsType) SendSMS(text string) (string, error) {
 
-func (f smsType) AddFaceURL(faceListID string, photoURL string) (list string, err error) {
-	url := GetResource(Face, V1, "facelists")
-	url = url + "/" + faceListID + "/persistedFaces"
-	photo := PhotoURLType{URL: photoURL}
-	client, req := getPOSTClient(url, f.apiKey, photo, "application/json")
+	url := "https://dev.mobileconnect.pdi.tid.es/es/sms/v2/smsoutbound"
+	dst := []string{"tel:+34699218702"}
+
+	smsBody := smsRequestType{From: "tel:22949;phone-context=+34", To: dst, Message: text}
+	client, req := getClient(url, smsBody, "application/json")
 
 	resp, err := client.Do(req)
 
-	fmt.Printf("AddPhoto----->")
+	fmt.Printf("Sending SMS----->")
 
 	if err != nil {
 		return "", err
 	}
 
+	var smsResponse smsResponseType
 	switch resp.StatusCode {
 	case http.StatusOK:
-		goops.Info(goops.Context(goops.C{"op": "AddPhoto", "result": "OK"}), "%s", resp.Status)
+		json.NewDecoder(resp.Body).Decode(&smsResponse)
+		goops.Info("SMS ID: %s", smsResponse.ID)
+		goops.Info(goops.Context(goops.C{"op": "SendSMS", "result": "OK"}), "%s", resp.Status)
 	default:
-		goops.Info(goops.Context(goops.C{"op": "AddPhoto", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		goops.Info(goops.Context(goops.C{"op": "SendSMS", "result": "NOK"}))
 	}
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	var faceResponse faceResponseType
-	switch resp.StatusCode {
-	case http.StatusOK:
-		json.NewDecoder(resp.Body).Decode(&faceResponse)
-		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "OK"}), "%s", resp.Status)
-	default:
-		var faceErrorResponse APIErrorResponse
-		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
-		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
-		fmt.Print(toJSON(faceErrorResponse, pretty))
-	}
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return toJSON(faceResponse, pretty), err
+	return smsResponse.ID, err
 
 }
-// NewFace creates a face client
+
+func getClient(url string, body interface{}, contentType string) (*http.Client, *http.Request) {
+
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+
+	bodyJSON, _ := json.Marshal(body)
+	req, _ := http.NewRequest("POST", url, bytes.NewBufferString(fmt.Sprintf("%s", bodyJSON)))
+	req.Header.Add("Content-Type", contentType)
+
+	return client, req
+}
+
+// NewSMS creates a face client
 func NewSMS() smsType {
 
 	sms := smsType{}
