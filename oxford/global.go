@@ -13,7 +13,6 @@ import (
 	"os"
 )
 
-
 const (
 	apiURL string = "https://api.projectoxford.ai"
 	// V1 is the v1.0 version
@@ -32,10 +31,10 @@ const (
 	SpeakerRecognition
 )
 
-var apis = map[APIType]string {
-		Face:               "face",
-		SpeakerRecognition: "spid",
-	}
+var apis = map[APIType]string{
+	Face:               "face",
+	SpeakerRecognition: "spid",
+}
 
 // Error represents the structure of an oxford error
 type oxfordError struct {
@@ -47,7 +46,6 @@ type oxfordError struct {
 type APIErrorResponse struct {
 	Err oxfordError `json:"error"`
 }
-
 
 // GetResource builds a resource
 func GetResource(apiType APIType, version string, resource string) string {
@@ -84,8 +82,8 @@ func toJSON(value interface{}, option printOption) string {
 	return fmt.Sprintf("%s", jsonValue)
 }
 
-
 type HTTPMethod int
+
 const (
 	// GET represents the HTTP GET method
 	HTTP_GET HTTPMethod = iota
@@ -94,44 +92,39 @@ const (
 )
 
 var (
-
-	requestGET = createHTTPRequest(HTTP_GET)
+	requestGET  = createHTTPRequest(HTTP_GET)
 	requestPOST = createHTTPRequest(HTTP_POST)
-	requestPUT = createHTTPRequest(HTTP_PUT)
-) 
+	requestPUT  = createHTTPRequest(HTTP_PUT)
+)
 
-
-
-func GET (url string, apiKey string, queryParams map[string]string, headers map[string]string) (*http.Response, error) {
+func GET(url string, apiKey string, queryParams map[string]string, headers map[string]string) (*http.Response, error) {
 
 	r := requestGET(url, queryParams, apiKey, headers, "", nil)
 	client := getClient()
 	return client.Do(r)
 }
 
-
-func PUT (url string, queryParams map[string]string, apiKey string, headers map[string]string, contentType string, body interface{}) (*http.Response, error) {
+func PUT(url string, queryParams map[string]string, apiKey string, headers map[string]string, contentType string, body interface{}) (*http.Response, error) {
 
 	r := requestPUT(url, queryParams, apiKey, headers, contentType, body)
 	client := getClient()
 	return client.Do(r)
 }
 
-func POST (url string, queryParams map[string]string, apiKey string, headers map[string]string, contentType string, body interface{}) (*http.Response, error) {
+func POST(url string, queryParams map[string]string, apiKey string, headers map[string]string, contentType string, body interface{}) (*http.Response, error) {
 
 	r := requestPOST(url, queryParams, apiKey, headers, contentType, body)
 	client := getClient()
 	return client.Do(r)
 }
 
-
 func createBody(body interface{}, contentType string) (bodyReader io.Reader) {
 
 	switch {
-		case contentType ==  "application/octet-stream":
-			bodyReader = bytes.NewBuffer(body.([]byte))
-		case contentType ==  "application/json":
-			bodyReader = bytes.NewBufferString(toJSON(body, normal))
+	case contentType == "application/octet-stream":
+		bodyReader = bytes.NewBuffer(body.([]byte))
+	case contentType == "application/json":
+		bodyReader = bytes.NewBufferString(toJSON(body, normal))
 	}
 
 	return bodyReader
@@ -139,27 +132,26 @@ func createBody(body interface{}, contentType string) (bodyReader io.Reader) {
 
 type createRequest func(url string, queryParams map[string]string, apiKey string, headers map[string]string, contentType string, body interface{}) *http.Request
 
-
 func createHTTPRequest(method HTTPMethod) createRequest {
 	return func(url string, queryParams map[string]string, apiKey string, headers map[string]string, contentType string, body interface{}) *http.Request {
 		var req *http.Request
-		switch  {
-			case method == HTTP_GET:
-				req, _ = http.NewRequest("GET", url, nil)
-			case method == HTTP_POST:
-				req, _ = http.NewRequest("POST", url, createBody(body, contentType))
-			case method == HTTP_PUT:
-				req, _ = http.NewRequest("PUT", url, createBody(body, contentType))
+		switch {
+		case method == HTTP_GET:
+			req, _ = http.NewRequest("GET", url, nil)
+		case method == HTTP_POST:
+			req, _ = http.NewRequest("POST", url, createBody(body, contentType))
+		case method == HTTP_PUT:
+			req, _ = http.NewRequest("PUT", url, createBody(body, contentType))
 
 		}
 		req.Header.Add("Content-Type", contentType)
 		req.Header.Add("Ocp-Apim-Subscription-Key", apiKey)
 
-		for k,v := range headers {
+		for k, v := range headers {
 			req.Header.Add(k, v)
 		}
 
-		for k,v := range queryParams {
+		for k, v := range queryParams {
 			req.Header.Add(k, v)
 			req.URL.Query().Add(k, v)
 		}
@@ -177,7 +169,6 @@ func getClient() *http.Client {
 
 	return client
 }
-
 
 func fileToByteArray(imageFileName string) ([]byte, error) {
 	file, err := os.Open(imageFileName)
@@ -197,10 +188,10 @@ func fileToByteArray(imageFileName string) ([]byte, error) {
 	buffer := bufio.NewReader(file)
 	_, err = buffer.Read(bytes)
 
-	fileOutput, _ := os.Create("/tmp/image.jpg")
-	defer fileOutput.Close()
-	imageOutput := bufio.NewWriter(fileOutput)
-	imageOutput.Write(bytes)
+	// fileOutput, _ := os.Create("/tmp/image.jpg")
+	// defer fileOutput.Close()
+	// imageOutput := bufio.NewWriter(fileOutput)
+	// imageOutput.Write(bytes)
 	return bytes, err
 }
 

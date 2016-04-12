@@ -69,7 +69,6 @@ type faceDetectInfo struct {
 	//El resto no me interesan
 }
 
-
 func (f face) Detect(photoURL string) (string, error) {
 	url := GetResource(Face, V1, "detect")
 	photo := PhotoURLType{URL: photoURL}
@@ -138,7 +137,6 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 
 	return found, err
 }
-
 
 func (f face) AddFace(faceListID string, imageFileName string) (persistedFaceID string, err error) {
 	url := GetResource(Face, V1, "facelists")
@@ -302,7 +300,6 @@ func (f face) GetFacesInAList(faceListID string) (list string, err error) {
 	return toJSON(facesInAList, pretty), err
 
 }
-
 
 // NewFace creates a face client
 func NewFace(key string) face {

@@ -28,7 +28,6 @@ const multipleWordsRegExp = `^.*$`
 
 var faceService = oxford.NewFace("567c560aa85245418459b82634bc7a98")
 
-
 func addFace() (string, error) {
 
 	faceListID, err := readString("FaceList ID", oneWordRegExp)
