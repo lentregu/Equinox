@@ -2,6 +2,8 @@
 
 This project aims to build your own low cost authorization tool by means of the face detection.
 
+You can find here [github project] (https://github.com/lentregu/Equinox) the code (result of a Hackaton).
+
 
 ![Architecture] (img/equinox.jpg)
 
