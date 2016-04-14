@@ -3,7 +3,7 @@
 This project aims to build your own low cost authorization tool by means of the face detection.
 
 
-![Architecture] (img/equinox.jpg)
+![Architecture] (imgs/equinox.jpg)
 
 The picture above shows the architecture employed to implement our **_Human Authorization_** low cost tool.
 
