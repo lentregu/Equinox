@@ -1,17 +1,24 @@
-# Welcome to MkDocs
+# Welcome to Human Authorization
 
-For full documentation visit [mkdocs.org](http://mkdocs.org).
+This project aims to build your own low cost authorization tool by means of the face detection.
 
-## Commands
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
+![Architecture] (img/equinox.jpg)
 
-## Project layout
+The picture above shows the architecture employed to implement our **_Human Authorization_** low cost tool.
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
++ Movement Sensor
++ Arduino
++ Raspberry Pi
++ Raspicam
++ Microsoft Oxfor Project API
++ Screen
+
+
+## Movement Sensor
+
+## Arduino
+## Raspberry Pi
+## Raspicam
+## Microsoft Oxfor Project API
+## Screen
