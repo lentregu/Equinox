@@ -52,7 +52,7 @@ This tool is a CLI tool that allows us to creat a list of authorised people, to 
 
 Camera connected to the Raspberry Pi to take photos to the people to be authorised.
 
-## Microsoft Oxfor Project
+## Microsoft Oxford Project
 
 Microsoft IA server that offers API to detect faces, create list of faces, find similar faces, etc.
 
