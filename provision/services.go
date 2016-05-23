@@ -26,6 +26,8 @@ const oneWordRegExp = `^[^\t\n\f\r ]*$`
 
 const multipleWordsRegExp = `^.*$`
 
+var faceService = oxford.NewFace("567c560aa85245418459b82634bc7a98")
+
 func addFace() (string, error) {
 
 	faceListID, err := readString("FaceList ID", oneWordRegExp)
@@ -33,21 +35,18 @@ func addFace() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	faceService := oxford.NewFace("567c560aa85245418459b82634bc7a98")
-	return faceService.AddFaceURL(faceListID, imageFileName)
+	//return faceService.AddFaceURL(faceListID, imageFileName)
+	return faceService.AddFace(faceListID, imageFileName)
 }
 
 func getFacesInAList() (string, error) {
 
 	faceListID, _ := readString("FaceList ID", oneWordRegExp)
-	faceService := oxford.NewFace("567c560aa85245418459b82634bc7a98")
 	return faceService.GetFacesInAList(faceListID)
 }
 
 func getFaceList() (string, error) {
 
-	faceService := oxford.NewFace("567c560aa85245418459b82634bc7a98")
 	return faceService.GetFaceList()
 }
 
@@ -59,7 +58,6 @@ func createFaceList() (string, error) {
 		return "", err
 	}
 
-	faceService := oxford.NewFace("567c560aa85245418459b82634bc7a98")
 	return faceService.CreateFaceList(faceListID)
 }
 

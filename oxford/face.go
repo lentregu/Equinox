@@ -1,7 +1,6 @@
 package oxford
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,12 +10,14 @@ import (
 	"github.com/lentregu/Equinox/goops"
 )
 
+type M map[string]string
+
 type face struct {
 	apiKey string
 }
 
 type faceList struct {
-	FaceListID string `json:"faceListId, omitempty"`
+	FaceListID string `json:"faceListId,omitempty"`
 	Name       string `json:"name"`
 	UserData   string `json:"userData"`
 }
@@ -29,7 +30,7 @@ type faceListContent struct {
 	FaceListID     string `json:"faceListId"`
 	Name           string `json:"name"`
 	UserData       string `json:"userData"`
-	persistedFaces []faceType
+	PersistedFaces []faceType
 }
 
 func (f face) Verify(img string) bool {
@@ -71,9 +72,8 @@ type faceDetectInfo struct {
 func (f face) Detect(photoURL string) (string, error) {
 	url := GetResource(Face, V1, "detect")
 	photo := PhotoURLType{URL: photoURL}
-	client, req := getPOSTClient(url, f.apiKey, photo, "application/json")
-	req.URL.Query().Add("returnFaceId", "true")
-	resp, err := client.Do(req)
+
+	resp, err := POST(url, M{"returnFaceId": "true"}, f.apiKey, nil, "application/json", photo)
 
 	var faceID string
 
@@ -92,7 +92,7 @@ func (f face) Detect(photoURL string) (string, error) {
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
 		goops.Info(goops.Context(goops.C{"op": "Detect", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
@@ -103,10 +103,9 @@ func (f face) Detect(photoURL string) (string, error) {
 func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 	url := GetResource(Face, V1, "findsimilars")
 	faceSimilarBody := faceSimilarRequestType{FaceID: faceID, FaceListID: faceListID, MaxNumOfCandidatesReturned: 5}
-	client, req := getPOSTClient(url, f.apiKey, faceSimilarBody, "application/json")
 
 	var similarList []faceSimilarResponseType
-	resp, err := client.Do(req)
+	resp, err := POST(url, nil, f.apiKey, nil, "application/json", faceSimilarBody)
 
 	if err != nil {
 		return false, err
@@ -121,7 +120,7 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 		var similarErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&similarErrorResponse)
 		goops.Info(goops.Context(goops.C{"op": "FindSimilar", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(similarErrorResponse, pretty))
 	}
 
@@ -142,21 +141,13 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 func (f face) AddFace(faceListID string, imageFileName string) (persistedFaceID string, err error) {
 	url := GetResource(Face, V1, "facelists")
 	url = url + "/" + faceListID + "/persistedFaces"
-	imageByteArray, err := imageToByteArray(imageFileName)
-	fmt.Println("------------------")
-	//fmt.Println(imageByteArray)
-	fmt.Println(byteArrayToBase64(imageByteArray))
-	fmt.Println("------------------")
-	photo := PhotoLocalType{URL: byteArrayToBase64(imageByteArray)}
+	imageByteArray, err := fileToByteArray(imageFileName)
+
 	if err != nil {
 		return "", err
 	}
-	client, req := getPOSTClient(url, f.apiKey, photo, "application/octet-stream")
 
-	fmt.Printf("AddFace Len: %d----->", len(photo.URL))
-
-	req.Header.Add("Content-Length", strconv.Itoa(len(photo.URL)))
-	resp, err := client.Do(req)
+	resp, err := POST(url, nil, f.apiKey, M{"Content-Length": strconv.Itoa(len(imageByteArray))}, "application/octet-stream", imageByteArray)
 
 	if err != nil {
 		return "", err
@@ -171,7 +162,7 @@ func (f face) AddFace(faceListID string, imageFileName string) (persistedFaceID 
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
 		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
@@ -187,9 +178,8 @@ func (f face) AddFaceURL(faceListID string, photoURL string) (list string, err e
 	url := GetResource(Face, V1, "facelists")
 	url = url + "/" + faceListID + "/persistedFaces"
 	photo := PhotoURLType{URL: photoURL}
-	client, req := getPOSTClient(url, f.apiKey, photo, "application/json")
 
-	resp, err := client.Do(req)
+	resp, err := POST(url, nil, f.apiKey, nil, "application/json", photo)
 
 	fmt.Printf("AddPhoto----->")
 
@@ -202,7 +192,7 @@ func (f face) AddFaceURL(faceListID string, photoURL string) (list string, err e
 		goops.Info(goops.Context(goops.C{"op": "AddPhoto", "result": "OK"}), "%s", resp.Status)
 	default:
 		goops.Info(goops.Context(goops.C{"op": "AddPhoto", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	}
 
 	if err != nil {
@@ -218,7 +208,7 @@ func (f face) AddFaceURL(faceListID string, photoURL string) (list string, err e
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
 		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
@@ -234,14 +224,8 @@ func (f face) CreateFaceList(faceListID string) (id string, err error) {
 	url := GetResource(Face, V1, "facelists")
 	url = url + "/" + faceListID
 	fl := faceList{Name: faceListID, UserData: "Face List for Equinox"}
-	client, req := getPUTClient(url, f.apiKey, fl, "application/json")
 
-	resp, err := client.Do(req)
-
-	fmt.Println("-----------------")
-	fmt.Print(req)
-	fmt.Println()
-	fmt.Println("-----------------")
+	resp, err := PUT(url, nil, f.apiKey, nil, "application/json", fl)
 
 	if err != nil {
 		return "", err
@@ -252,7 +236,7 @@ func (f face) CreateFaceList(faceListID string) (id string, err error) {
 		goops.Info(goops.Context(goops.C{"op": "createFaceList", "result": "OK"}), "%s", resp.Status)
 	default:
 		goops.Info(goops.Context(goops.C{"op": "createFaceList", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	}
 
 	if err != nil {
@@ -264,9 +248,8 @@ func (f face) CreateFaceList(faceListID string) (id string, err error) {
 
 func (f face) GetFaceList() (list string, err error) {
 	url := GetResource(Face, V1, "facelists")
-	client, req := getGETClient(url, f.apiKey)
 
-	resp, err := client.Do(req)
+	resp, err := GET(url, f.apiKey, nil, nil)
 
 	if err != nil {
 		return "", err
@@ -277,7 +260,7 @@ func (f face) GetFaceList() (list string, err error) {
 		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "OK"}), "%s", resp.Status)
 	default:
 		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "NOK"}))
-		goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	}
 
 	if err != nil {
@@ -293,15 +276,14 @@ func (f face) GetFaceList() (list string, err error) {
 func (f face) GetFacesInAList(faceListID string) (list string, err error) {
 	url := GetResource(Face, V1, "facelists")
 	url = url + "/" + faceListID
-	client, req := getGETClient(url, f.apiKey)
 
-	resp, err := client.Do(req)
+	resp, err := GET(url, f.apiKey, nil, nil)
 
 	if err != nil {
 		return "", err
 	}
 
-	goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+	//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	switch resp.StatusCode {
 	case http.StatusOK:
 		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "OK"}), "%s", resp.Status)
@@ -314,9 +296,6 @@ func (f face) GetFacesInAList(faceListID string) (list string, err error) {
 	}
 
 	facesInAList := faceListContent{}
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	fmt.Printf("--->%s", buf)
 	json.NewDecoder(resp.Body).Decode(&facesInAList)
 	return toJSON(facesInAList, pretty), err
 
