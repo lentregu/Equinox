@@ -8,7 +8,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/lentregu/Equinox/goops"
+	"github.com/TDAF/gologops"
 )
 
 // SMSGatewayType is ....
@@ -69,10 +69,10 @@ func (s smsType) SendSMS(text string) (string, error) {
 	switch resp.StatusCode {
 	case http.StatusOK:
 		json.NewDecoder(resp.Body).Decode(&smsResponse)
-		goops.Info("SMS ID: %s", smsResponse.ID)
-		goops.Info(goops.Context(goops.C{"op": "SendSMS", "result": "OK"}), "%s", resp.Status)
+		gologops.Infof("SMS ID: %s", smsResponse.ID)
+		gologops.InfoC(gologops.C{"op": "SendSMS", "result": "OK"}, "%s", resp.Status)
 	default:
-		goops.Info(goops.Context(goops.C{"op": "SendSMS", "result": "NOK"}))
+		gologops.InfoC(gologops.C{"op": "SendSMS", "result": "NOK"}, "")
 	}
 
 	if err != nil {

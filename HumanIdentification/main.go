@@ -3,12 +3,12 @@ package main
 import (
 	"net/http"
 
-	"github.com/lentregu/Equinox/goops"
+	"log"
 )
 
 func main() {
 
 	router := newRouter()
 
-	goops.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }

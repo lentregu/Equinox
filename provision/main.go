@@ -7,8 +7,7 @@ import (
 	"log"
 	"os"
 	"tools-support/screen"
-
-	"github.com/lentregu/Equinox/goops"
+	"github.com/TDAF/gologops"
 )
 
 var clear screen.ClearWindow
@@ -63,7 +62,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			} else {
-				goops.Info("The list %s has been created", id)
+				gologops.Infof("The list %s has been created", id)
 			}
 		case option == "listFacesList":
 			list, err := getFaceList()

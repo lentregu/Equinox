@@ -7,7 +7,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/lentregu/Equinox/goops"
+	"github.com/TDAF/gologops"
 )
 
 type M map[string]string
@@ -35,7 +35,7 @@ type faceListContent struct {
 
 func (f face) Verify(img string) bool {
 	url := GetResource(Face, V1, "detect")
-	goops.Info("url: %s", url)
+	gologops.Infof("url: %s", url)
 	return true
 }
 
@@ -86,13 +86,13 @@ func (f face) Detect(photoURL string) (string, error) {
 	switch resp.StatusCode {
 	case http.StatusOK:
 		json.NewDecoder(resp.Body).Decode(&faceDetectResponse)
-		goops.Info(goops.Context(goops.C{"op": "Detect", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "Detect", "result": "OK"}, "%s", resp.Status)
 		faceID = faceDetectResponse[0].FaceID
 	default:
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
-		goops.Info(goops.Context(goops.C{"op": "Detect", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "Detect", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
@@ -115,12 +115,12 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 	case http.StatusOK:
 		json.NewDecoder(resp.Body).Decode(&similarList)
 		fmt.Print(toJSON(similarList, pretty))
-		goops.Info(goops.Context(goops.C{"op": "FindSimilar", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "FindSimilar", "result": "OK"}, "%s", resp.Status)
 	default:
 		var similarErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&similarErrorResponse)
-		goops.Info(goops.Context(goops.C{"op": "FindSimilar", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "FindSimilar", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(similarErrorResponse, pretty))
 	}
 
@@ -157,12 +157,12 @@ func (f face) AddFace(faceListID string, imageFileName string) (persistedFaceID 
 	switch resp.StatusCode {
 	case http.StatusOK:
 		json.NewDecoder(resp.Body).Decode(&faceResponse)
-		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "AddFace", "result": "OK"}, "%s", resp.Status)
 	default:
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
-		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "AddFace", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
@@ -189,10 +189,10 @@ func (f face) AddFaceURL(faceListID string, photoURL string) (list string, err e
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		goops.Info(goops.Context(goops.C{"op": "AddPhoto", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "AddPhoto", "result": "OK"}, "%s", resp.Status)
 	default:
-		goops.Info(goops.Context(goops.C{"op": "AddPhoto", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "AddPhoto", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	}
 
 	if err != nil {
@@ -203,12 +203,12 @@ func (f face) AddFaceURL(faceListID string, photoURL string) (list string, err e
 	switch resp.StatusCode {
 	case http.StatusOK:
 		json.NewDecoder(resp.Body).Decode(&faceResponse)
-		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "AddFace", "result": "OK"}, "%s", resp.Status)
 	default:
 		var faceErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&faceErrorResponse)
-		goops.Info(goops.Context(goops.C{"op": "AddFace", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "AddFace", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(faceErrorResponse, pretty))
 	}
 
@@ -233,10 +233,10 @@ func (f face) CreateFaceList(faceListID string) (id string, err error) {
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		goops.Info(goops.Context(goops.C{"op": "createFaceList", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "createFaceList", "result": "OK"}, "%s", resp.Status)
 	default:
-		goops.Info(goops.Context(goops.C{"op": "createFaceList", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "createFaceList", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	}
 
 	if err != nil {
@@ -257,10 +257,10 @@ func (f face) GetFaceList() (list string, err error) {
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "GetFaceList", "result": "OK"}, "%s", resp.Status)
 	default:
-		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "NOK"}))
-		//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+		gologops.InfoC(gologops.C{"op": "GetFaceList", "result": "NOK"}, "%s", resp.Status)
+		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	}
 
 	if err != nil {
@@ -283,12 +283,12 @@ func (f face) GetFacesInAList(faceListID string) (list string, err error) {
 		return "", err
 	}
 
-	//goops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
+	//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 	switch resp.StatusCode {
 	case http.StatusOK:
-		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "OK"}), "%s", resp.Status)
+		gologops.InfoC(gologops.C{"op": "GetFaceList", "result": "OK"}, "%s", resp.Status)
 	default:
-		goops.Info(goops.Context(goops.C{"op": "GetFaceList", "result": "NOK"}))
+		gologops.InfoC(gologops.C{"op": "GetFaceList", "result": "NOK"}, "%s", resp.Status)
 	}
 
 	if err != nil {

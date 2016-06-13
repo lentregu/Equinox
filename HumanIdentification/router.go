@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/lentregu/Equinox/goops"
+	"github.com/TDAF/gologops"
 )
 
 // Logger is a handler to wrap other handlers and log basic request parameters
@@ -13,7 +13,7 @@ func loggerHandler(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		inner.ServeHTTP(w, r)
-		goops.Info("%s    %s    %s    %s", r.Method, r.RequestURI, name, time.Since(start))
+		gologops.Infof("%s    %s    %s    %s", r.Method, r.RequestURI, name, time.Since(start))
 	})
 }
 
