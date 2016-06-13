@@ -59,7 +59,7 @@ type faceSimilarRequestType struct {
 	MaxNumOfCandidatesReturned int    `json:"maxNumOfCandidatesReturned"`
 }
 
-type faceSimilarResponseType struct {
+type FaceSimilarResponseType struct {
 	PersistedFaceID string  `json:"persistedFaceId"`
 	Confidence      float64 `json:"confidence"`
 }
@@ -100,15 +100,16 @@ func (f face) Detect(photoURL string) (string, error) {
 
 }
 
-func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
+// func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
+func (f face) FindSimilar(faceID string, faceListID string) ([]FaceSimilarResponseType, error) {
 	url := GetResource(Face, V1, "findsimilars")
 	faceSimilarBody := faceSimilarRequestType{FaceID: faceID, FaceListID: faceListID, MaxNumOfCandidatesReturned: 5}
 
-	var similarList []faceSimilarResponseType
+	var similarList []FaceSimilarResponseType
 	resp, err := POST(url, nil, f.apiKey, nil, "application/json", faceSimilarBody)
 
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	switch resp.StatusCode {
@@ -120,7 +121,6 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 		var similarErrorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&similarErrorResponse)
 		gologops.InfoC(gologops.C{"op": "FindSimilar", "result": "NOK"}, "%s", resp.Status)
-		//gologops.Info("Status:%s|Request:%s", resp.Status, req.URL.RequestURI())
 		fmt.Print(toJSON(similarErrorResponse, pretty))
 	}
 
@@ -128,14 +128,7 @@ func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 		fmt.Println(err)
 	}
 
-	found := false
-	for _, similar := range similarList {
-		if similar.Confidence > 0.5 {
-			found = true
-		}
-	}
-
-	return found, err
+	return similarList, err
 }
 
 func (f face) AddFace(faceListID string, imageFileName string) (persistedFaceID string, err error) {
