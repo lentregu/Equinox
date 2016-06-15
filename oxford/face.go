@@ -10,10 +10,16 @@ import (
 	"github.com/TDAF/gologops"
 )
 
-type M map[string]string
-
 type face struct {
 	apiKey string
+}
+
+// NewFace creates a face client
+func NewFace(key string) face {
+
+	f := face{}
+	f.apiKey = key
+	return f
 }
 
 type faceList struct {
@@ -100,7 +106,6 @@ func (f face) Detect(photoURL string) (string, error) {
 
 }
 
-// func (f face) FindSimilar(faceID string, faceListID string) (bool, error) {
 func (f face) FindSimilar(faceID string, faceListID string) ([]FaceSimilarResponseType, error) {
 	url := GetResource(Face, V1, "findsimilars")
 	faceSimilarBody := faceSimilarRequestType{FaceID: faceID, FaceListID: faceListID, MaxNumOfCandidatesReturned: 5}
@@ -292,12 +297,4 @@ func (f face) GetFacesInAList(faceListID string) (list string, err error) {
 	json.NewDecoder(resp.Body).Decode(&facesInAList)
 	return toJSON(facesInAList, pretty), err
 
-}
-
-// NewFace creates a face client
-func NewFace(key string) face {
-
-	f := face{}
-	f.apiKey = key
-	return f
 }

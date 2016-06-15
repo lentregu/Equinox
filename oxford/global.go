@@ -21,6 +21,8 @@ const (
 	AzureSubscriptionID string = "70306775-8047-4d29-9540-679cc5412f0f"
 )
 
+type M map[string]string
+
 // APIType is a type for the different apis
 type APIType int
 
@@ -36,16 +38,21 @@ var apis = map[APIType]string{
 	SpeakerRecognition: "spid",
 }
 
-// Error represents the structure of an oxford error
 type oxfordError struct {
 	StatusCode string `json:"code"`
 	Message    string `json:"message"`
+}
+
+// Error interface
+func (err oxfordError) Error () string {
+	return err.Message
 }
 
 // APIErrorResponse is ...
 type APIErrorResponse struct {
 	Err oxfordError `json:"error"`
 }
+
 
 // GetResource builds a resource
 func GetResource(apiType APIType, version string, resource string) string {

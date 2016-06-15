@@ -37,17 +37,25 @@ func FindSimilar(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("El faceID es: %s\n", faceID)
 
-	if isSimilar, err := faceService.FindSimilar(faceID, requestBody.FaceListID); err != nil {
+	if similarList, err := faceService.FindSimilar(faceID, requestBody.FaceListID); err != nil {
 		fmt.Printf("Error %v", err)
-	} else {
-
-		if isSimilar {
+	} else if isSimilar(similarList) {
 			sms := comms.NewSMS(comms.Smppadapter)
 			sms.SendSMS("PERSONA AUTORIZADA")
 			fmt.Println("PERSONA AUTORIZADA")
 		} else {
 			fmt.Println("PERSONA NO AUTORIZADA")
 		}
-	}
 
 }
+
+func isSimilar(similarList []oxford.FaceSimilarResponseType) bool {
+	found := false
+	for _, similar := range similarList {
+		if similar.Confidence > 0.6 {
+			found = true
+		}
+	}
+	return found
+}
+

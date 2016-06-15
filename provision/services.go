@@ -27,6 +27,7 @@ const oneWordRegExp = `^[^\t\n\f\r ]*$`
 const multipleWordsRegExp = `^.*$`
 
 var faceService = oxford.NewFace("567c560aa85245418459b82634bc7a98")
+var speakService = oxford.NewSpeak("af90809f8a0d4430ba2aabd44785ebc4")
 
 func addFace() (string, error) {
 
@@ -60,6 +61,19 @@ func createFaceList() (string, error) {
 
 	return faceService.CreateFaceList(faceListID)
 }
+
+
+func createSpeakerProfile() (string, error) {
+
+	locale, err := readString("Locale", oneWordRegExp)
+
+	if err != nil {
+		return "", err
+	}
+
+	return speakService.CreateProfile(locale)
+}
+
 
 func readString(name string, wordRegExp string) (string, error) {
 	var value string
