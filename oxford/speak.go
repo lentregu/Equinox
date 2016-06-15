@@ -23,10 +23,9 @@ type speakCreateProfileResponse struct {
 	IdentificationProfileId string `json:"identificationProfileId,omitempty"`
 }
 
-
 func (s speak) CreateProfile(locale string) (profileID string, err error) {
 	url := GetResource(SpeakerRecognition, V1, "identificationProfiles")
-	resp, err := POST(url, nil, s.apiKey, nil, "application/json", M{"locale":locale})
+	resp, err := POST(url, nil, s.apiKey, nil, "application/json", M{"locale": locale})
 
 	if err != nil {
 		return "", err
@@ -41,8 +40,8 @@ func (s speak) CreateProfile(locale string) (profileID string, err error) {
 	default:
 		var errorResponse APIErrorResponse
 		json.NewDecoder(resp.Body).Decode(&errorResponse)
-		err = errorResponse.Err
-		gologops.ErrorE(err, gologops.C{"op": "speak:CreateProfile", "result": "NOK"}, "%s", resp.Status)
+		err = NewError(resp.StatusCode, errorResponse.Err)
+		gologops.ErrorE(err, gologops.C{"op": "speak:CreateProfile", "result": "NOK"}, "Error creating profile")
 	}
 
 	return profileID, err

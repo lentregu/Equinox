@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"tools-support/screen"
+
 	"github.com/TDAF/gologops"
+	"github.com/lentregu/clrscreen"
 )
 
 var clear screen.ClearWindow
