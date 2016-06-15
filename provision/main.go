@@ -47,7 +47,8 @@ func init() {
 		2: "listFacesList",
 		3: "facesInAList",
 		4: "addFace",
-		5: "end",
+		5: "createSpeakerProfile",
+		6: "end",
 	}
 }
 
@@ -85,6 +86,14 @@ func main() {
 			} else {
 				fmt.Printf("The PhotoID is: %s\n", photoID)
 			}
+		case option == "createSpeakerProfile":
+			id, err := createSpeakerProfile()
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				gologops.Infof("The Profile %s has been created ss", id)
+			}
+
 		case option == "end":
 			return
 		}
@@ -96,14 +105,15 @@ func main() {
 
 func menu() string {
 	option := 0
-	for option < 1 || option > 5 {
+	for option < 1 || option > 6 {
 		clear := screen.NewClearScreenFunction(screen.DARWIN)
 		clear()
 		fmt.Println("1. Create Face List")
 		fmt.Println("2. List of Faces lists")
 		fmt.Println("3. List Faces in a list")
 		fmt.Println("4. Add Face")
-		fmt.Println("5. Exit")
+		fmt.Println("5. Create Speaker Profile")
+		fmt.Println("6. Exit")
 		fmt.Printf("\nChoose an option....:")
 		if _, err := fmt.Fscanf(stdin, "%d", &option); err != nil {
 			// In case of not introducing a number
